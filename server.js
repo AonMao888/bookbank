@@ -262,8 +262,11 @@ app.post('/api/new/author', async (req, res) => {
             await db.collection('author').add({
                 name: recv.name,
                 email: recv.email,
+                birth:recv.birth,
                 address: recv.address,
-                link: recv.link,
+                wiki:recv.wiki,
+                profile: recv.profile,
+                about:recv.about,
                 time: admin.firestore.FieldValue.serverTimestamp(),
             }).then(() => {
                 res.json({
@@ -323,8 +326,11 @@ app.post('/api/update/author', async (req, res) => {
             await db.collection('author').doc(recv.id).update({
                 name: recv.name,
                 email: recv.email,
+                birth:recv.birth,
                 address: recv.address,
-                link: recv.link,
+                wiki:recv.wiki,
+                profile: recv.profile,
+                about:recv.about,
             }).then(() => {
                 res.json({
                     status: 'success',
