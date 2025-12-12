@@ -362,6 +362,46 @@ app.post('/api/update/author', async (req, res) => {
     }
 })
 
+//get specific author
+app.get('/api/author/:aid', async (req, res) => {
+    let { aid } = req.params;
+    if (aid) {
+        try {
+            let got = await db.collection('author').doc(aid).get();
+            if (got.exists) {
+                let da = {
+                    id:got.id,
+                    date:getdate(got.data().time),
+                    ...got.data()
+                }
+                res.json({
+                    status: 'success',
+                    text: 'Author was got.',
+                    data: da
+                })
+            } else {
+                res.json({
+                    status: 'fail',
+                    text: 'No author found with this ID!',
+                    data: []
+                })
+            }
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to get author data!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'Author ID was required!',
+            data: []
+        })
+    }
+})
+
 app.listen(80, () => {
     console.log('server started with port 80');
 })
