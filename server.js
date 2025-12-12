@@ -267,6 +267,7 @@ app.post('/api/new/author', async (req, res) => {
                 wiki:recv.wiki,
                 profile: recv.profile,
                 about:recv.about,
+                country:recv.country,
                 time: admin.firestore.FieldValue.serverTimestamp(),
             }).then(() => {
                 res.json({
@@ -331,6 +332,7 @@ app.post('/api/update/author', async (req, res) => {
                 wiki:recv.wiki,
                 profile: recv.profile,
                 about:recv.about,
+                country:recv.country
             }).then(() => {
                 res.json({
                     status: 'success',
