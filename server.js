@@ -7,9 +7,23 @@ const rateLimit = require('express-rate-limit');
 let app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }))
-app.use(cors({
-    origin: '*'
-}));
+const allowedOrigins = [
+    'https://bookbank789.netlify.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+];
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true); // (error, allow)
+        } else {
+            callback(new Error('Not allowed by CORS')); // ခွင့်မပြုပါ
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'] 
+};
+app.use(cors(corsOptions));
 
 var cer = {
     "type": "service_account",
@@ -397,6 +411,46 @@ app.get('/api/author/:aid', async (req, res) => {
         res.json({
             status: 'fail',
             text: 'Author ID was required!',
+            data: []
+        })
+    }
+})
+
+//get specific author
+app.get('/api/isadmin', async (req, res) => {
+    let { uid, email } = req.query;
+    if (uid && email) {
+        try {
+            let got = await db.collection('author').where('uid','==',uid).where('email','==',email).get();
+            if (!got.empty) {
+                let da = {
+                    id:got.id,
+                    date:getdate(got.data().time),
+                    ...got.data()
+                }
+                res.json({
+                    status: 'success',
+                    text: 'Author was got.',
+                    data: da
+                })
+            } else {
+                res.json({
+                    status: 'fail',
+                    text: 'No admin found with this user ID and email!',
+                    data: []
+                })
+            }
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to get author data!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'User ID and email required!',
             data: []
         })
     }
