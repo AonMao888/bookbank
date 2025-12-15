@@ -416,7 +416,7 @@ app.get('/api/author/:aid', async (req, res) => {
     }
 })
 
-//get specific author
+//check is admin
 app.get('/api/isadmin', async (req, res) => {
     let { uid, email } = req.query;
     if (uid && email) {
@@ -451,6 +451,104 @@ app.get('/api/isadmin', async (req, res) => {
         res.json({
             status: 'fail',
             text: 'User ID and email required!',
+            data: []
+        })
+    }
+})
+
+//add new member
+app.post('/api/new/member', async (req, res) => {
+    let recv = req.body;
+    if (recv) {
+        try {
+            await db.collection('member').add({
+                name: recv.name,
+                email: recv.email,
+                uid:recv.uid,
+                time: admin.firestore.FieldValue.serverTimestamp(),
+            }).then(() => {
+                res.json({
+                    status: 'success',
+                    text: 'New member was added.',
+                    data: []
+                })
+            }).catch(error => {
+                res.json({
+                    status: 'fail',
+                    text: 'Something went wrong while adding new member!',
+                    data: []
+                })
+            })
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to add new member!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong!',
+            data: []
+        })
+    }
+})
+//get all member
+app.get('/api/all/member', async (req, res) => {
+    try {
+        let got = await db.collection('member').get();
+        let list = got.docs.map(d => ({
+            id: d.id,
+            date: getdate(d.data().time),
+            ...d.data()
+        }))
+        res.json({
+            status: 'success',
+            text: 'Members were got.',
+            data: list
+        })
+    } catch (e) {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong to get member data!',
+            data: []
+        })
+    }
+})
+//update member data
+app.post('/api/update/member', async (req, res) => {
+    let recv = req.body;
+    if (recv) {
+        try {
+            await db.collection('member').doc(recv.id).update({
+                name: recv.name,
+                email: recv.email,
+                uid:recv.uid,
+            }).then(() => {
+                res.json({
+                    status: 'success',
+                    text: 'Update member successfully.',
+                    data: []
+                })
+            }).catch(error => {
+                res.json({
+                    status: 'fail',
+                    text: 'Something went wrong while updating member data!',
+                    data: []
+                })
+            })
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to update member data!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong!',
             data: []
         })
     }
