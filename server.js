@@ -553,6 +553,45 @@ app.post('/api/update/member', async (req, res) => {
         })
     }
 })
+//check is member
+app.get('/api/ismember', async (req, res) => {
+    let { uid, email } = req.query;
+    if (uid && email) {
+        try {
+            let got = await db.collection('member').where('uid','==',uid).where('email','==',email).get();
+            if (!got.empty) {
+                let da = {
+                    id:got.id,
+                    date:getdate(got.data().time),
+                    ...got.data()
+                }
+                res.json({
+                    status: 'success',
+                    text: 'Member was got.',
+                    data: da
+                })
+            } else {
+                res.json({
+                    status: 'fail',
+                    text: 'No member found with this user ID and email!',
+                    data: []
+                })
+            }
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to get member data!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'User ID and email required!',
+            data: []
+        })
+    }
+})
 
 app.listen(80, () => {
     console.log('server started with port 80');
