@@ -506,7 +506,7 @@ app.post('/api/accept/request/member', async (req, res) => {
                 uid: recv.uid,
                 time: admin.firestore.FieldValue.serverTimestamp(),
             }).then(async() => {
-                await db.collection('requestmember').update({
+                await db.collection('requestmember').doc(recv.id).update({
                     status: 'accepted',
                 }).then(() => {
                     res.json({
