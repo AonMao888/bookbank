@@ -21,7 +21,7 @@ const corsOptions = {
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'] 
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions));
 
@@ -236,8 +236,8 @@ app.get('/api/book/:bid', async (req, res) => {
             let got = await db.collection('book').doc(bid).get();
             if (got.exists) {
                 let da = {
-                    id:got.id,
-                    date:getdate(got.data().time),
+                    id: got.id,
+                    date: getdate(got.data().time),
                     ...got.data()
                 }
                 res.json({
@@ -276,12 +276,12 @@ app.post('/api/new/author', async (req, res) => {
             await db.collection('author').add({
                 name: recv.name,
                 email: recv.email,
-                birth:recv.birth,
+                birth: recv.birth,
                 address: recv.address,
-                wiki:recv.wiki,
+                wiki: recv.wiki,
                 profile: recv.profile,
-                about:recv.about,
-                country:recv.country,
+                about: recv.about,
+                country: recv.country,
                 time: admin.firestore.FieldValue.serverTimestamp(),
             }).then(() => {
                 res.json({
@@ -341,12 +341,12 @@ app.post('/api/update/author', async (req, res) => {
             await db.collection('author').doc(recv.id).update({
                 name: recv.name,
                 email: recv.email,
-                birth:recv.birth,
+                birth: recv.birth,
                 address: recv.address,
-                wiki:recv.wiki,
+                wiki: recv.wiki,
                 profile: recv.profile,
-                about:recv.about,
-                country:recv.country
+                about: recv.about,
+                country: recv.country
             }).then(() => {
                 res.json({
                     status: 'success',
@@ -384,8 +384,8 @@ app.get('/api/author/:aid', async (req, res) => {
             let got = await db.collection('author').doc(aid).get();
             if (got.exists) {
                 let da = {
-                    id:got.id,
-                    date:getdate(got.data().time),
+                    id: got.id,
+                    date: getdate(got.data().time),
                     ...got.data()
                 }
                 res.json({
@@ -421,11 +421,11 @@ app.get('/api/isadmin', async (req, res) => {
     let { uid, email } = req.query;
     if (uid && email) {
         try {
-            let got = await db.collection('author').where('uid','==',uid).where('email','==',email).get();
+            let got = await db.collection('author').where('uid', '==', uid).where('email', '==', email).get();
             if (!got.empty) {
                 let da = {
-                    id:got.id,
-                    date:getdate(got.data().time),
+                    id: got.id,
+                    date: getdate(got.data().time),
                     ...got.data()
                 }
                 res.json({
@@ -464,7 +464,8 @@ app.post('/api/request/member', async (req, res) => {
             await db.collection('requestmember').add({
                 name: recv.name,
                 email: recv.email,
-                uid:recv.uid,
+                uid: recv.uid,
+                status: 'requested',
                 time: admin.firestore.FieldValue.serverTimestamp(),
             }).then(() => {
                 res.json({
@@ -494,6 +495,48 @@ app.post('/api/request/member', async (req, res) => {
         })
     }
 })
+//accept member request
+app.post('/api/accept/request/member', async (req, res) => {
+    let recv = req.body;
+    if (recv) {
+        try {
+            await db.collection('member').doc(recv.uid).set({
+                name: recv.name,
+                email: recv.email,
+                uid: recv.uid,
+                time: admin.firestore.FieldValue.serverTimestamp(),
+            }).then(async() => {
+                await db.collection('requestmember').update({
+                    status: 'accepted',
+                }).then(() => {
+                    res.json({
+                        status: 'success',
+                        text: 'New member was accepted.',
+                        data: []
+                    })
+                }).catch(error => {
+                    res.json({
+                        status: 'fail',
+                        text: 'Something went wrong while accepting to new member!',
+                        data: []
+                    })
+                })
+            })
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to accept new member!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong!',
+            data: []
+        })
+    }
+})
 //add new member
 app.post('/api/new/member', async (req, res) => {
     let recv = req.body;
@@ -502,7 +545,7 @@ app.post('/api/new/member', async (req, res) => {
             await db.collection('member').doc(recv.uid).set({
                 name: recv.name,
                 email: recv.email,
-                uid:recv.uid,
+                uid: recv.uid,
                 time: admin.firestore.FieldValue.serverTimestamp(),
             }).then(() => {
                 res.json({
@@ -562,7 +605,7 @@ app.post('/api/update/member', async (req, res) => {
             await db.collection('member').doc(recv.id).update({
                 name: recv.name,
                 email: recv.email,
-                uid:recv.uid,
+                uid: recv.uid,
             }).then(() => {
                 res.json({
                     status: 'success',
@@ -596,11 +639,11 @@ app.get('/api/ismember', async (req, res) => {
     let { uid, email } = req.query;
     if (uid && email) {
         try {
-            let got = await db.collection('member').where('uid','==',uid).where('email','==',email).get();
+            let got = await db.collection('member').where('uid', '==', uid).where('email', '==', email).get();
             if (!got.empty) {
                 let da = {
-                    id:got.id,
-                    date:getdate(got.data().time),
+                    id: got.id,
+                    date: getdate(got.data().time),
                     ...got.data()
                 }
                 res.json({
