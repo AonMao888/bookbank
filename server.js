@@ -597,6 +597,28 @@ app.get('/api/all/member', async (req, res) => {
         })
     }
 })
+//get all request member
+app.get('/api/all/requestmember', async (req, res) => {
+    try {
+        let got = await db.collection('requestmember').get();
+        let list = got.docs.map(d => ({
+            id: d.id,
+            date: getdate(d.data().time),
+            ...d.data()
+        }))
+        res.json({
+            status: 'success',
+            text: 'Member requests were got.',
+            data: list
+        })
+    } catch (e) {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong to get member requests data!',
+            data: []
+        })
+    }
+})
 //update member data
 app.post('/api/update/member', async (req, res) => {
     let recv = req.body;
