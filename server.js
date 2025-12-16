@@ -541,7 +541,7 @@ app.post('/api/accept/request/member', async (req, res) => {
                 email: recv.email,
                 uid: recv.uid,
                 time: admin.firestore.FieldValue.serverTimestamp(),
-            }).then(async() => {
+            }).then(async () => {
                 await db.collection('requestmember').doc(recv.id).update({
                     status: 'accepted',
                 }).then(() => {
@@ -697,18 +697,27 @@ app.get('/api/ismember', async (req, res) => {
     let { uid, email } = req.query;
     if (uid && email) {
         try {
-            let got = await db.collection('member').where('uid', '==', uid).where('email', '==', email).get();
-            if (!got.empty) {
-                let da = {
-                    id: got.id,
-                    date: getdate(got.data().time),
-                    ...got.data()
+            let got = await db.collection('member').doc(uid).get();
+            if (got.exists) {
+                let data = got.data();
+                if (uid === data.uid && email === data.email) {
+                    let da = {
+                        id: got.id,
+                        date: getdate(got.data().time),
+                        ...got.data()
+                    }
+                    res.json({
+                        status: 'success',
+                        text: 'Member was got.',
+                        data: da
+                    })
+                } else {
+                    res.json({
+                        status: 'fail',
+                        text: 'No member found with this user ID and email!',
+                        data: []
+                    })
                 }
-                res.json({
-                    status: 'success',
-                    text: 'Member was got.',
-                    data: da
-                })
             } else {
                 res.json({
                     status: 'fail',
