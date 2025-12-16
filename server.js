@@ -456,12 +456,50 @@ app.get('/api/isadmin', async (req, res) => {
     }
 })
 
+//request new member
+app.post('/api/request/member', async (req, res) => {
+    let recv = req.body;
+    if (recv) {
+        try {
+            await db.collection('requestmember').add({
+                name: recv.name,
+                email: recv.email,
+                uid:recv.uid,
+                time: admin.firestore.FieldValue.serverTimestamp(),
+            }).then(() => {
+                res.json({
+                    status: 'success',
+                    text: 'New member was added.',
+                    data: []
+                })
+            }).catch(error => {
+                res.json({
+                    status: 'fail',
+                    text: 'Something went wrong while adding new member!',
+                    data: []
+                })
+            })
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to add new member!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong!',
+            data: []
+        })
+    }
+})
 //add new member
 app.post('/api/new/member', async (req, res) => {
     let recv = req.body;
     if (recv) {
         try {
-            await db.collection('member').add({
+            await db.collection('member').doc(recv.uid).set({
                 name: recv.name,
                 email: recv.email,
                 uid:recv.uid,
