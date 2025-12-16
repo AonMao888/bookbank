@@ -495,6 +495,42 @@ app.post('/api/request/member', async (req, res) => {
         })
     }
 })
+//reject member request
+app.post('/api/reject/request/member', async (req, res) => {
+    let recv = req.body;
+    if (recv) {
+        try {
+            await db.collection('requestmember').doc(recv.id).update({
+                status: 'rejected',
+                time: admin.firestore.FieldValue.serverTimestamp(),
+            }).then(() => {
+                res.json({
+                    status: 'success',
+                    text: 'New member was rejected.',
+                    data: []
+                })
+            }).catch(error => {
+                res.json({
+                    status: 'fail',
+                    text: 'Something went wrong while rejecting to new member!',
+                    data: []
+                })
+            })
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to reject new member!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong!',
+            data: []
+        })
+    }
+})
 //accept member request
 app.post('/api/accept/request/member', async (req, res) => {
     let recv = req.body;
