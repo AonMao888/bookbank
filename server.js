@@ -469,20 +469,20 @@ app.post('/api/request/member', async (req, res) => {
             }).then(() => {
                 res.json({
                     status: 'success',
-                    text: 'New member was added.',
+                    text: 'New member was requested.',
                     data: []
                 })
             }).catch(error => {
                 res.json({
                     status: 'fail',
-                    text: 'Something went wrong while adding new member!',
+                    text: 'Something went wrong while requesting to new member!',
                     data: []
                 })
             })
         } catch (e) {
             res.json({
                 status: 'fail',
-                text: 'Something went wrong to add new member!',
+                text: 'Something went wrong to request new member!',
                 data: []
             })
         }
