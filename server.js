@@ -453,7 +453,7 @@ app.get('/api/isadmin', async (req, res) => {
     let { uid, email } = req.query;
     if (uid && email) {
         try {
-            let got = await db.collection('author').where('uid', '==', uid).where('email', '==', email).get();
+            let got = await db.collection('admin').where('uid', '==', uid).where('email', '==', email).get();
             if (!got.empty) {
                 let da = {
                     id: got.id,
@@ -462,7 +462,7 @@ app.get('/api/isadmin', async (req, res) => {
                 }
                 res.json({
                     status: 'success',
-                    text: 'Author was got.',
+                    text: 'Admin was got.',
                     data: da
                 })
             } else {
@@ -475,7 +475,7 @@ app.get('/api/isadmin', async (req, res) => {
         } catch (e) {
             res.json({
                 status: 'fail',
-                text: 'Something went wrong to get author data!',
+                text: 'Something went wrong to get admin data!',
                 data: []
             })
         }
