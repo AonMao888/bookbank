@@ -184,6 +184,38 @@ app.get('/api/all/book', async (req, res) => {
         })
     }
 })
+//get books by category
+app.get('/api/book/category/:cate', async (req, res) => {
+    const { cate } = req.params;
+    try {
+        let name = cate.charAt(0).toUpperCase() + cate.slice(1);
+        let got = await db.collection('book').where('cate', '==', name).get();
+        if (!got.empty) {
+            let list = got.docs.map(d => ({
+                id: d.id,
+                date: getdate(d.data().time),
+                ...d.data()
+            }))
+            res.json({
+                status: 'success',
+                text: 'Books were got.',
+                data: list
+            })
+        } else {
+            res.json({
+                status: 'fail',
+                text: 'No book are in the list with this category!',
+                data: []
+            })
+        }
+    } catch (e) {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong to get book data!',
+            data: []
+        })
+    }
+})
 //update book data
 app.post('/api/update/book', async (req, res) => {
     let recv = req.body;
