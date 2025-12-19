@@ -453,21 +453,30 @@ app.get('/api/isadmin', async (req, res) => {
     let { uid, email } = req.query;
     if (uid && email) {
         try {
-            let got = await db.collection('admin').where('uid', '==', uid).where('email', '==', email).get();
+            let got = await db.collection('admin').where('uid', '==', uid).get();
             if (!got.empty) {
-                let da = {
-                    id: got.id,
-                    ...got.data()
+                let dat = got.docs[0].data();
+                if (dat.email === email) {
+                    let da = {
+                        id: got.docs[0].id,
+                        ...dat
+                    }
+                    res.json({
+                        status: 'success',
+                        text: 'Admin was got.',
+                        data: da
+                    })
+                } else {
+                    res.json({
+                        status: 'fail',
+                        text: 'No admin found with this email!',
+                        data: []
+                    })
                 }
-                res.json({
-                    status: 'success',
-                    text: 'Admin was got.',
-                    data: da
-                })
             } else {
                 res.json({
                     status: 'fail',
-                    text: 'No admin found with this user ID and email!',
+                    text: 'No admin found with this user ID!',
                     data: []
                 })
             }
