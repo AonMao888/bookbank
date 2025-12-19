@@ -457,7 +457,6 @@ app.get('/api/isadmin', async (req, res) => {
             if (!got.empty) {
                 let da = {
                     id: got.id,
-                    date: getdate(got.data().time),
                     ...got.data()
                 }
                 res.json({
