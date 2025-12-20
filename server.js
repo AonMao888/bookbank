@@ -781,6 +781,143 @@ app.get('/api/ismember', async (req, res) => {
     }
 })
 
+//add new review
+app.post('/api/new/review', async (req, res) => {
+    let recv = req.body;
+    if (recv) {
+        try {
+            let id = recv.bookid + recv.uid;
+            await db.collection('reviews').doc(id).set({
+                name: recv.name,
+                email: recv.email,
+                uid: recv.uid,
+                bookid: recv.bookid,
+                text: recv.text,
+                rating: recv.rating,
+                time: admin.firestore.FieldValue.serverTimestamp(),
+            }).then(() => {
+                res.json({
+                    status: 'success',
+                    text: 'New review was added.',
+                    data: []
+                })
+            }).catch(error => {
+                res.json({
+                    status: 'fail',
+                    text: 'Something went wrong while adding new review!',
+                    data: []
+                })
+            })
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to add new review!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong!',
+            data: []
+        })
+    }
+})
+//get book reviews
+app.get('/api/reviews/:id', async (req, res) => {
+    let { id } = req.params;
+    if (id) {
+        let got = await db.collection('reviews').where('bookid', '==', id).get();
+        if (!got.empty) {
+            let da = got.docs.map((item) => ({
+                id: item.id,
+                date: getdate(item.data().time),
+                ...item
+            }));
+            res.json({
+                status: 'success',
+                text: 'Reviews were found!',
+                data: da
+            })
+        } else {
+            res.json({
+                status: 'fail',
+                text: 'No review found with this ID!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'ID is required!',
+            data: []
+        })
+    }
+})
+//delete review
+app.post('/api/delete/review', async (req, res) => {
+    let recv = req.body;
+    if (recv) {
+        try {
+            let got = await db.collection('reviews').doc(recv.id).get();
+            if (got.exists) {
+                let gotdata = got.data();
+                if (gotdata.uid === recv.uid && gotdata.email === recv.email) {
+                    await db.collection('deletedreview').add({
+                        name: gotdata.name,
+                        email: gotdata.email,
+                        uid: gotdata.uid,
+                        text: gotdata.text,
+                        rating: gotdata.rating,
+                        addtime: gotdata.time,
+                        requesteremail: recv.email,
+                        requesteruid: recv.uid,
+                        deletedtime: admin.firestore.FieldValue.serverTimestamp(),
+                    }).then(async () => {
+                        await db.collection('reviews').doc(recv.id).delete().then(() => {
+                            res.json({
+                                status: 'success',
+                                text: 'New review was added.',
+                                data: []
+                            })
+                        }).catch(e => {
+                            res.json({
+                                status: 'fail',
+                                text: 'Error case while deleting review!',
+                                data: []
+                            })
+                        })
+                    })
+                } else {
+                    res.json({
+                        status: 'fail',
+                        text: 'No permission to delete review!',
+                        data: []
+                    })
+                }
+            } else {
+                res.json({
+                    status: 'fail',
+                    text: 'No review found with this ID!',
+                    data: []
+                })
+            }
+        } catch (e) {
+            res.json({
+                status: 'fail',
+                text: 'Something went wrong to add new review!',
+                data: []
+            })
+        }
+    } else {
+        res.json({
+            status: 'fail',
+            text: 'Something went wrong!',
+            data: []
+        })
+    }
+})
+
 app.listen(80, () => {
     console.log('server started with port 80');
 })
