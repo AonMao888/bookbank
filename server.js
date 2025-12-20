@@ -832,7 +832,7 @@ app.get('/api/reviews/:id', async (req, res) => {
             let da = got.docs.map((item) => ({
                 id: item.id,
                 date: getdate(item.data().time),
-                ...item
+                ...item.data()
             }));
             res.json({
                 status: 'success',
